@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<base href="<%=basePath%>">
+<meta charset="UTF-8">
+<!-- for HTML5 -->
+<title>网络抓包工具</title>
+</head>
+<body>
+	
+	过滤字段<input id="gltext" type="text" />
+	<input id="box1" type="checkbox" name="box" value="image"/><span>过滤图片</span>
+	<input id="box2" type="checkbox" name="box" value="application,"/><span>过滤脚本</span>
+	<input id="box3" type="checkbox" name="box" value="video"/><span>过滤视频</span>
+	<input id="box4" type="checkbox" name="box" value="css"/><span>过滤CSS</span>
+	<hr />
+	<button onclick="closeWebSocket()">关闭WebSocket连接</button>
+	<button onclick="clearmessage()">清空消息</button>
+	<hr />
+	<table width="100%" border='1'cellspacing="0" cellpadding="0" >
+		<tbody id="message">
+		</tbody>
+	</table>
+</body>
+
+<script type="text/javascript">
+     var websocket = null;
+    //判断当前浏览器是否支持WebSocket
+    if ('WebSocket' in window) {
+        websocket = new WebSocket("ws://182.254.151.160:8080/test_redis/websocket/log");
+    }else {
+        alert('当前浏览器 Not support websocket');
+    }
+
+    //连接发生错误的回调方法
+    websocket.onerror = function () {
+        setMessageInnerHTMLsys("WebSocket连接发生错误");
+    };
+	
+    //连接成功建立的回调方法
+    websocket.onopen = function () {
+        setMessageInnerHTMLsys("WebSocket连接成功");
+    };
+
+    //接收到消息的回调方法
+    websocket.onmessage = function (event) {
+        setMessageInnerHTML(event.data);
+    };
+
+    //连接关闭的回调方法
+    websocket.onclose = function () {
+        setMessageInnerHTMLsys("WebSocket连接关闭");
+    };
+
+    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function () {
+        closeWebSocket();
+    };
+
+    //将消息显示在网页上
+    function setMessageInnerHTML(innerHTML) {
+    
+    	var lsz = "";
+    	var gltext = document.getElementById('gltext').value;
+		var obj = document.getElementsByName("box");
+		var strs= new Array(); //定义一数组 
+		strs=innerHTML.split(" "); //字符分割 
+    	var inhtml = "<tr><td width='6%'>"+strs[0]+"</td><td width='11%'>"+strs[1].replace("[", "")+" "+strs[2].replace("]", "")+"</td><td width='5%'>"+strs[3]+"</td><td  width='35%' style='word-break:break-all; word-wrap:break-word;' >"+strs[4]+"</td><td  width='4%'>"+strs[10]+"</td><td  width='7%'><a href='"+strs[4]+"' target='_blank'>查看链接</a></td><td  width='10%'><a href='/ClutchUrl/competite/url_add?url="+strs[4]+"' '>广告位链接入库</a></td><tr>";
+    	if(innerHTML.indexOf(gltext) >=0 ){
+	  		if(obj[0].checked&&strs[10].indexOf(obj[0].value)>=0){ //判断复选框是否选中
+		  	}else if(obj[1].checked&&strs[10].indexOf(obj[1].value)>=0){ //判断复选框是否选中
+		  	}else if(obj[2].checked&&strs[10].indexOf(obj[2].value)>=0){ //判断复选框是否选中
+		  	}else if(obj[3].checked&&strs[10].indexOf(obj[3].value)>=0){ //判断复选框是否选中
+		  	}else{
+		  		document.getElementById('message').innerHTML = inhtml + document.getElementById('message').innerHTML;
+		  	}
+		}else if(gltext.length==0){
+			if(obj[0].checked&&strs[10].indexOf(obj[0].value)>=0){ //判断复选框是否选中
+		  	}else if(obj[1].checked&&strs[10].indexOf(obj[1].value)>=0){ //判断复选框是否选中
+		  	}else if(obj[2].checked&&strs[10].indexOf(obj[2].value)>=0){ //判断复选框是否选中
+		  	}else if(obj[3].checked&&strs[10].indexOf(obj[3].value)>=0){ //判断复选框是否选中
+		  	}else{
+		  		document.getElementById('message').innerHTML = inhtml + document.getElementById('message').innerHTML;
+		  	}
+		}
+    }
+    //将消息显示在网页上
+    function setMessageInnerHTMLsys(innerHTML) {
+    	var inhtml = "<tr><td colspan='6'>"+innerHTML+"</td><tr>";
+		document.getElementById('message').innerHTML = inhtml + document.getElementById('message').innerHTML;
+    }
+
+    //关闭WebSocket连接
+    function closeWebSocket() {
+        websocket.close();
+    }
+
+    //发送消息
+    function send() {
+        var message = document.getElementById('text').value;
+        websocket.send(message);
+    } 
+    
+    //清空消息
+    function clearmessage() {
+        document.getElementById('message').innerHTML = "";
+    } 
+     /* $(document).ready(function() {
+        // 指定websocket路径  
+        //var websocket = new WebSocket('ws://182.254.151.160:8080/log');
+        var websocket = new WebSocket('ws://127.0.0.1:8080/test_redis/log');
+        websocket.onmessage = function(event) {
+            // 接收服务端的实时日志并添加到HTML页面中
+            $("#log-container div").append(event.data);
+            // 滚动条滚动到最低部
+            $("#log-container").scrollTop($("#log-container div").height() - $("#log-container").height());
+        };
+    }); */
+    
+    
+</script>
+</html>
